@@ -1,0 +1,22 @@
+[
+  {
+    "id": "CMDI-ECHO-001",
+    "category": "Command Injection",
+    "payload": "; echo cmdi_sentinel_01",
+    "purpose": "Detect concatenation into child_process.exec or system shells using safe non-destructive echo probe.",
+    "expected_secure_behavior": "Input treated strictly as argument data or rejected by input validator; no command execution occurs.",
+    "expected_vulnerable_behavior": "Server response or logs output the echoed sentinel token 'cmdi_sentinel_01'.",
+    "risk_level": "Critical",
+    "remediation": "Avoid child_process.exec. Use child_process.execFile() or spawn() with argument arrays and shell: false."
+  },
+  {
+    "id": "CMDI-PIPE-001",
+    "category": "Command Injection",
+    "payload": "| echo cmdi_sentinel_02",
+    "purpose": "Detect command chaining via pipe operators.",
+    "expected_secure_behavior": "Pipe character is sanitized, rejected, or passed as a literal string to subprocess.",
+    "expected_vulnerable_behavior": "Second command executes in subshell and returns sentinel in output.",
+    "risk_level": "Critical",
+    "remediation": "Do not pass user inputs to shell commands. If execution is mandatory, validate against strict regex (e.g. /^[a-zA-Z0-9_-]+$/)."
+  }
+]

@@ -1,0 +1,22 @@
+[
+  {
+    "id": "UPLOAD-EXT-BYPASS-001",
+    "category": "File Upload Security",
+    "payload": "Filename: harmless_test_probe.php.png (Content: test_probe_marker)",
+    "purpose": "Test double extension handling during file uploads.",
+    "expected_secure_behavior": "Server renames uploaded file to a randomly generated UUID with strict whitelist-derived extension (e.g. uuid.png) and stores off webroot.",
+    "expected_vulnerable_behavior": "Server retains double extension and allows direct script execution.",
+    "risk_level": "High",
+    "remediation": "Generate random filenames on server side, validate MIME type via magic bytes, and store files outside public web root or in object storage."
+  },
+  {
+    "id": "UPLOAD-SVG-XSS-001",
+    "category": "File Upload Security",
+    "payload": "<?xml version=\"1.0\" standalone=\"no\"?><svg xmlns=\"http://www.w3.org/2000/svg\"><text id=\"probe\">test</text></svg>",
+    "purpose": "Verify if SVG uploads are sanitized against embedded scripts or served with Content-Disposition: attachment.",
+    "expected_secure_behavior": "SVG files are sanitized or served with Content-Disposition: attachment and Content-Security-Policy: default-src 'none'.",
+    "expected_vulnerable_behavior": "SVG is served inline with image/svg+xml allowing embedded script execution in user session.",
+    "risk_level": "Medium",
+    "remediation": "Serve user uploads from an isolated domain with Content-Disposition: attachment and strict Content-Type headers."
+  }
+]

@@ -1,0 +1,32 @@
+[
+  {
+    "id": "CORS-REFLECT-ORIGIN-001",
+    "category": "Cross-Origin Resource Sharing (CORS)",
+    "payload": "Origin: https://attacker.untrusted.test",
+    "purpose": "Verify if the server blindly echoes arbitrary Origin headers in Access-Control-Allow-Origin.",
+    "expected_secure_behavior": "Server does not return Access-Control-Allow-Origin or returns only pre-approved trusted origins.",
+    "expected_vulnerable_behavior": "Server returns Access-Control-Allow-Origin: https://attacker.untrusted.test and Access-Control-Allow-Credentials: true.",
+    "risk_level": "High",
+    "remediation": "Configure an explicit allowlist of trusted origins. Never use origin: (origin, callback) => callback(null, true) in production."
+  },
+  {
+    "id": "CORS-NULL-ORIGIN-001",
+    "category": "Cross-Origin Resource Sharing (CORS)",
+    "payload": "Origin: null",
+    "purpose": "Test if the application accepts 'null' origin (common in sandboxed iframes and local file URIs).",
+    "expected_secure_behavior": "Server rejects Origin: null without CORS headers.",
+    "expected_vulnerable_behavior": "Server returns Access-Control-Allow-Origin: null with Access-Control-Allow-Credentials: true.",
+    "risk_level": "Medium",
+    "remediation": "Do not include 'null' in the allowed CORS origins list."
+  },
+  {
+    "id": "CORS-WILDCARD-CREDENTIALS-001",
+    "category": "Cross-Origin Resource Sharing (CORS)",
+    "payload": "Origin: *",
+    "purpose": "Detect insecure wildcard origin with credentials allowed.",
+    "expected_secure_behavior": "Server does not pair wildcard with credentials.",
+    "expected_vulnerable_behavior": "Server misconfiguration permitting credentialed leakage.",
+    "risk_level": "High",
+    "remediation": "If credentials are required, specify an exact origin from an allowlist."
+  }
+]

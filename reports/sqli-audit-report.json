@@ -1,0 +1,108 @@
+{
+  "target_application": "SQL Injection Security Audit",
+  "target_url": "http://localhost:3000",
+  "assessment_date": "2026-11-02T07:18:21.778Z",
+  "tested_endpoints": [
+    "/api/vulnerable/users",
+    "/api/secure/users",
+    "/api/vulnerable/login",
+    "/api/secure/login"
+  ],
+  "summary": {
+    "total_findings": 5,
+    "confirmed": 3,
+    "potential": 0,
+    "secure": 2,
+    "by_severity": {
+      "Critical": 2,
+      "High": 1,
+      "Medium": 0,
+      "Low": 0,
+      "Informational": 2
+    }
+  },
+  "findings": [
+    {
+      "id": "SQLI-ERR-CONFIRMED",
+      "category": "SQL Injection",
+      "severity": "Critical",
+      "status": "Confirmed",
+      "title": "Raw SQL Syntax Error Leakage on /api/vulnerable/users",
+      "endpoint": "/api/vulnerable/users",
+      "method": "GET",
+      "evidence": "Database error signature matched: /you have an error in your sql syntax/i\nResponse snippet: {\"error\":\"Internal Database Error\",\"sql_message\":\"You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near ''' at line 1\",\"query\":\"SELECT id, username, email FROM users WHER",
+      "reproduction_steps": [
+        "Send GET request to http://localhost:3000/api/vulnerable/users?query='",
+        "Observe HTTP 500 with unhandled SQL error syntax disclosure"
+      ],
+      "impact": "Critical. Attackers can extract complete database contents, bypass access controls, or tamper with business data.",
+      "remediation": "Replace string concatenation with parameterized prepared statements (e.g. db.query(sql, [param])).",
+      "owasp_ref": "OWASP A03:2021 - Injection",
+      "cwe_ref": "CWE-89: Improper Neutralization of Special Elements used in an SQL Command"
+    },
+    {
+      "id": "SQLI-BOOL--api-vulnerable-users",
+      "category": "SQL Injection",
+      "severity": "High",
+      "status": "Confirmed",
+      "title": "Boolean Query Response Disparity on /api/vulnerable/users",
+      "endpoint": "/api/vulnerable/users",
+      "method": "GET",
+      "evidence": "True payload returned 95 bytes; False payload returned 95 bytes.",
+      "reproduction_steps": [
+        "Submit 1' AND '1'='1 -> returns filtered data",
+        "Submit 1' AND '1'='2 -> returns empty set or error"
+      ],
+      "impact": "Enables blind SQL inference of database records character-by-character.",
+      "remediation": "Use strict type casting and prepared statements."
+    },
+    {
+      "id": "SQLI-SAFE--api-secure-users",
+      "category": "SQL Injection",
+      "severity": "Informational",
+      "status": "Secure",
+      "title": "Query Parameters Safely Bound on /api/secure/users",
+      "endpoint": "/api/secure/users",
+      "method": "GET",
+      "evidence": "Status: 200. No SQL parse signatures encountered.",
+      "reproduction_steps": [
+        "Tested GET http://localhost:3000/api/secure/users?query='"
+      ],
+      "impact": "Parameters properly bounded.",
+      "remediation": "Maintain parameterized query practices."
+    },
+    {
+      "id": "SQLI-AUTH-BYPASS",
+      "category": "SQL Injection",
+      "severity": "Critical",
+      "status": "Confirmed",
+      "title": "Authentication Bypass via SQL Injection on /api/vulnerable/login",
+      "endpoint": "/api/vulnerable/login",
+      "method": "POST",
+      "evidence": "Bypass payload granted authenticated session without valid password: {\"success\":true,\"message\":\"Authentication successful\",\"user\":{\"id\":1,\"username\":\"alice\",\"role\":\"user\"}}",
+      "reproduction_steps": [
+        "Submit POST to /api/vulnerable/login with username: \"admin' OR '1'='1' -- \"",
+        "Observe successful HTTP 200 authentication response"
+      ],
+      "impact": "Critical. Attackers can log in as administrator or arbitrary users without knowing their password.",
+      "remediation": "Validate credentials using parameterized SELECT WHERE username = ? and compare hashed password via bcrypt.",
+      "owasp_ref": "OWASP A03:2021 - Injection",
+      "cwe_ref": "CWE-89"
+    },
+    {
+      "id": "SQLI-AUTH-SAFE--api-secure-login",
+      "category": "SQL Injection",
+      "severity": "Informational",
+      "status": "Secure",
+      "title": "Authentication Input Properly Handled on /api/secure/login",
+      "endpoint": "/api/secure/login",
+      "method": "POST",
+      "evidence": "Rejected with status 401: {\"success\":false,\"message\":\"Invalid username or password\"}",
+      "reproduction_steps": [
+        "Submitted SQL injection payload to login endpoint"
+      ],
+      "impact": "Protected against SQL authentication bypass.",
+      "remediation": "Maintain secure parameterization and password hashing."
+    }
+  ]
+}

@@ -1,0 +1,22 @@
+[
+  {
+    "id": "RATE-LIMIT-BURST-001",
+    "category": "Rate Limiting & Abuse Prevention",
+    "payload": "Send 20 requests within 1000ms window to /api/auth/login or sensitive endpoint",
+    "purpose": "Verify if endpoint enforces burst rate limiting to thwart automated credential stuffing or brute force.",
+    "expected_secure_behavior": "Server returns HTTP 429 Too Many Requests after threshold is reached with Retry-After header.",
+    "expected_vulnerable_behavior": "Server processes all 20 requests consecutively without throttling.",
+    "risk_level": "Medium",
+    "remediation": "Apply express-rate-limit middleware or Redis-backed sliding window rate limiter."
+  },
+  {
+    "id": "RATE-LIMIT-XFF-BYPASS-001",
+    "category": "Rate Limiting & Abuse Prevention",
+    "payload": "Header: X-Forwarded-For: 198.51.100.x (incrementing IP per request)",
+    "purpose": "Test if rate limiter relies on spoofable client-supplied X-Forwarded-For header.",
+    "expected_secure_behavior": "Server extracts IP from trusted reverse proxy connection (e.g. app.set('trust proxy', 1)) or session key.",
+    "expected_vulnerable_behavior": "Rate limiter is bypassed by simply rotating X-Forwarded-For IP values.",
+    "risk_level": "Medium",
+    "remediation": "Configure express 'trust proxy' correctly to trust only known upstream proxy hops, or key by account/token."
+  }
+]

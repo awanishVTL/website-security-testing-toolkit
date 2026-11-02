@@ -1,0 +1,42 @@
+[
+  {
+    "id": "IDOR-NUMERIC-001",
+    "category": "Authorization & Access Control",
+    "payload": "GET /api/users/102 (Authenticated as User 101)",
+    "purpose": "Test if changing object identifier allows unauthorized access to another user's private record.",
+    "expected_secure_behavior": "Server returns HTTP 403 Forbidden or 404 Not Found verifying resource ownership.",
+    "expected_vulnerable_behavior": "Server returns private profile and data of User 102.",
+    "risk_level": "High",
+    "remediation": "Enforce object-level access control: verify resource.ownerId === req.user.id in database query."
+  },
+  {
+    "id": "AUTHZ-PRIV-ESCALATION-001",
+    "category": "Authorization & Access Control",
+    "payload": "{\"username\": \"testuser\", \"role\": \"admin\"}",
+    "purpose": "Test mass assignment / parameter tampering vulnerability on user update endpoints.",
+    "expected_secure_behavior": "Server ignores or rejects unexpected 'role' field, keeping role immutable.",
+    "expected_vulnerable_behavior": "Server persists 'role: admin' to database, granting administrative privileges.",
+    "risk_level": "Critical",
+    "remediation": "Use explicit field allowlists for request body updates (e.g., using lodash.pick or zod schema filtering)."
+  },
+  {
+    "id": "AUTHZ-ADMIN-BYPASS-001",
+    "category": "Authorization & Access Control",
+    "payload": "GET /api/admin/system-stats (Header: Authorization: Bearer <regular_user_token>)",
+    "purpose": "Test whether administrative API routes enforce role verification middleware.",
+    "expected_secure_behavior": "Server checks req.user.role === 'admin' and returns HTTP 403 Forbidden.",
+    "expected_vulnerable_behavior": "Server allows any authenticated user to read administrative resources.",
+    "risk_level": "Critical",
+    "remediation": "Apply requireRole('admin') middleware to all sensitive /api/admin/* route groups."
+  },
+  {
+    "id": "IDOR-UUID-LEAK-001",
+    "category": "Authorization & Access Control",
+    "payload": "GET /api/documents/uuid-other-user",
+    "purpose": "Verify whether unguessable UUIDs alone are relied upon without database-level ownership checks.",
+    "expected_secure_behavior": "Server checks tenant or user ownership in query even when UUID is known.",
+    "expected_vulnerable_behavior": "Server delivers file solely because UUID matched without verifying session ownership.",
+    "risk_level": "Medium",
+    "remediation": "Never rely solely on UUID obscurity. Always query WHERE id = ? AND organization_id = ?."
+  }
+]

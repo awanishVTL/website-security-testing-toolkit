@@ -1,0 +1,22 @@
+[
+  {
+    "id": "SSRF-LOOPBACK-001",
+    "category": "Server-Side Request Forgery (SSRF)",
+    "payload": "url=http://127.0.0.1:80/admin",
+    "purpose": "Test if webhook or URL preview endpoints allow fetching internal loopback addresses.",
+    "expected_secure_behavior": "Server resolves destination IP before request and blocks loopback/private ranges (127.0.0.0/8, 10.0.0.0/8, 192.168.0.0/16, 172.16.0.0/12).",
+    "expected_vulnerable_behavior": "Server queries internal loopback service and relays internal response.",
+    "risk_level": "High",
+    "remediation": "Validate target URL with an allowlist, resolve DNS and block private IP address blocks before fetching."
+  },
+  {
+    "id": "SSRF-METADATA-001",
+    "category": "Server-Side Request Forgery (SSRF)",
+    "payload": "url=http://169.254.169.254/latest/meta-data/",
+    "purpose": "Test if cloud instance metadata service (AWS/GCP/Azure) can be reached via backend HTTP fetch.",
+    "expected_secure_behavior": "Server refuses connection to link-local IP (169.254.169.254) with HTTP 400 Bad Request.",
+    "expected_vulnerable_behavior": "Server queries metadata service, risking credential exposure.",
+    "risk_level": "Critical",
+    "remediation": "Block outbound access to 169.254.169.254 at host/network firewall, use IMDSv2 with token hops restricted."
+  }
+]

@@ -1,0 +1,92 @@
+{
+  "target_application": "CSRF Security Audit",
+  "target_url": "http://localhost:3000",
+  "assessment_date": "2026-11-02T07:18:27.529Z",
+  "tested_endpoints": [
+    "/api/vulnerable/transfer",
+    "/api/secure/transfer"
+  ],
+  "summary": {
+    "total_findings": 4,
+    "confirmed": 3,
+    "potential": 0,
+    "secure": 1,
+    "by_severity": {
+      "Critical": 0,
+      "High": 2,
+      "Medium": 1,
+      "Low": 0,
+      "Informational": 1
+    }
+  },
+  "findings": [
+    {
+      "id": "CSRF-GET-ACTION",
+      "category": "Cross-Site Request Forgery (CSRF)",
+      "severity": "High",
+      "status": "Confirmed",
+      "title": "State-Changing Operation Executable via HTTP GET on /api/vulnerable/transfer",
+      "endpoint": "/api/vulnerable/transfer",
+      "method": "GET",
+      "evidence": "HTTP GET triggered state mutation: {\"success\":true,\"message\":\"Transferred $1 to audit_test (VULNERABLE: No CSRF token or origin check)\",\"recipient\":\"audit_test\",\"amount\":1}",
+      "reproduction_steps": [
+        "Send HTTP GET request to http://localhost:3000/api/vulnerable/transfer?recipient=audit_test&amount=1",
+        "Notice endpoint executes transaction without requiring POST or CSRF validation"
+      ],
+      "impact": "High. An attacker can execute arbitrary state changes by embedding the URL in a simple <img src=\"...\"> on a third-party webpage.",
+      "remediation": "Disallow GET on state-changing endpoints. Enforce POST/PUT with CSRF tokens.",
+      "owasp_ref": "OWASP A01:2021 - Broken Access Control",
+      "cwe_ref": "CWE-352: Cross-Site Request Forgery (CSRF)"
+    },
+    {
+      "id": "CSRF-TOKEN-MISSING",
+      "category": "Cross-Site Request Forgery (CSRF)",
+      "severity": "High",
+      "status": "Confirmed",
+      "title": "State-Changing POST Accepted Without CSRF Token on /api/vulnerable/transfer",
+      "endpoint": "/api/vulnerable/transfer",
+      "method": "POST",
+      "evidence": "POST succeeded without X-CSRF-Token or CSRF form parameter: HTTP 200 OK",
+      "reproduction_steps": [
+        "Send POST to http://localhost:3000/api/vulnerable/transfer with session cookie but omit CSRF token",
+        "Observe successful transaction execution"
+      ],
+      "impact": "Enables cross-origin sites to forge actions on behalf of authenticated users.",
+      "remediation": "Implement anti-CSRF token middleware (e.g., csrf-csrf or csurf) and require custom headers for API calls.",
+      "owasp_ref": "OWASP A01:2021 - Broken Access Control",
+      "cwe_ref": "CWE-352"
+    },
+    {
+      "id": "CSRF-SAMESITE-MISSING",
+      "category": "Cross-Site Request Forgery (CSRF)",
+      "severity": "Medium",
+      "status": "Confirmed",
+      "title": "Session Cookie Lacks SameSite Restriction on /api/vulnerable/transfer",
+      "endpoint": "/api/vulnerable/transfer",
+      "method": "GET/POST",
+      "evidence": "Set-Cookie: session_id=vulnerable-session-token-12345; Path=/; HttpOnly",
+      "reproduction_steps": [
+        "Inspect Set-Cookie header on response",
+        "Verify absence of SameSite=Lax or SameSite=Strict"
+      ],
+      "impact": "Cookies are attached to cross-site requests, increasing vulnerability to CSRF.",
+      "remediation": "Configure SameSite=Lax or SameSite=Strict in cookie options: res.cookie(name, val, { sameSite: \"lax\", httpOnly: true, secure: true }).",
+      "cwe_ref": "CWE-1275"
+    },
+    {
+      "id": "CSRF-TOKEN-ENFORCED--api-secure-transfer",
+      "category": "Cross-Site Request Forgery (CSRF)",
+      "severity": "Informational",
+      "status": "Secure",
+      "title": "Anti-CSRF Token Enforced on /api/secure/transfer",
+      "endpoint": "/api/secure/transfer",
+      "method": "POST",
+      "evidence": "Request without token rejected with HTTP 403: {\"error\":\"Forbidden: Missing or invalid CSRF token\"}",
+      "reproduction_steps": [
+        "Attempted tokenless POST to /api/secure/transfer"
+      ],
+      "impact": "Cross-site forgery prevented by anti-CSRF validation.",
+      "remediation": "Keep CSRF tokens required on all non-safe HTTP methods."
+    }
+  ]
+}

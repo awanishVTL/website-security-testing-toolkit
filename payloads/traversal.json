@@ -1,0 +1,22 @@
+[
+  {
+    "id": "PATH-TRAVERSAL-001",
+    "category": "Path Traversal",
+    "payload": "filename=../../../../etc/passwd",
+    "purpose": "Test safe path traversal sequence against static file download/view endpoints.",
+    "expected_secure_behavior": "Server sanitizes or rejects path segments, resolving only inside authorized public root directory.",
+    "expected_vulnerable_behavior": "Server traverses out of intended directory and streams system file contents.",
+    "risk_level": "High",
+    "remediation": "Resolve absolute paths with path.resolve() and verify path.resolve(base, input).startsWith(base). Reject inputs containing '..' or null bytes."
+  },
+  {
+    "id": "PATH-TRAVERSAL-URL-ENCODED-001",
+    "category": "Path Traversal",
+    "payload": "filename=%2e%2e%2f%2e%2e%2fpackage.json",
+    "purpose": "Test URL-encoded directory traversal sequences.",
+    "expected_secure_behavior": "Input is rejected or path traversal is prevented by canonicalizing path.",
+    "expected_vulnerable_behavior": "Server decodes URL sequence after validation and exposes arbitrary files.",
+    "risk_level": "High",
+    "remediation": "Validate input after all decodings or strictly use whitelist identifiers (e.g. file ID from database)."
+  }
+]

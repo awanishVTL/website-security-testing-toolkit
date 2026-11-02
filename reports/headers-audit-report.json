@@ -1,0 +1,173 @@
+{
+  "target_application": "Security Headers Audit",
+  "target_url": "http://localhost:3000",
+  "assessment_date": "2026-11-02T07:18:46.837Z",
+  "tested_endpoints": [
+    "/api/vulnerable/profile",
+    "/api/secure/profile"
+  ],
+  "summary": {
+    "total_findings": 9,
+    "confirmed": 5,
+    "potential": 0,
+    "secure": 4,
+    "by_severity": {
+      "Critical": 0,
+      "High": 0,
+      "Medium": 2,
+      "Low": 3,
+      "Informational": 4
+    }
+  },
+  "findings": [
+    {
+      "id": "HEADER-MISSING-CONTENT_SECURITY_POLICY",
+      "category": "Security Headers",
+      "severity": "Medium",
+      "status": "Confirmed",
+      "title": "Missing Security Header: Content-Security-Policy on /api/vulnerable/profile",
+      "endpoint": "/api/vulnerable/profile",
+      "method": "GET",
+      "evidence": "Header \"Content-Security-Policy\" was not returned by server in response to GET /api/vulnerable/profile",
+      "reproduction_steps": [
+        "Send GET request to http://localhost:3000/api/vulnerable/profile",
+        "Inspect response headers for presence of \"Content-Security-Policy\""
+      ],
+      "impact": "Missing Content-Security-Policy degrades browser-side defense-in-depth protections.",
+      "remediation": "Implement CSP directives (e.g. default-src 'self'; script-src 'self').",
+      "owasp_ref": "OWASP A05:2021 - Security Misconfiguration",
+      "cwe_ref": "CWE-16"
+    },
+    {
+      "id": "HEADER-MISSING-X_FRAME_OPTIONS",
+      "category": "Security Headers",
+      "severity": "Medium",
+      "status": "Confirmed",
+      "title": "Missing Security Header: X-Frame-Options on /api/vulnerable/profile",
+      "endpoint": "/api/vulnerable/profile",
+      "method": "GET",
+      "evidence": "Header \"X-Frame-Options\" was not returned by server in response to GET /api/vulnerable/profile",
+      "reproduction_steps": [
+        "Send GET request to http://localhost:3000/api/vulnerable/profile",
+        "Inspect response headers for presence of \"X-Frame-Options\""
+      ],
+      "impact": "Missing X-Frame-Options degrades browser-side defense-in-depth protections.",
+      "remediation": "Set X-Frame-Options: DENY or SAMEORIGIN to prevent Clickjacking.",
+      "owasp_ref": "OWASP A05:2021 - Security Misconfiguration",
+      "cwe_ref": "CWE-16"
+    },
+    {
+      "id": "HEADER-MISSING-X_CONTENT_TYPE_OPTIONS",
+      "category": "Security Headers",
+      "severity": "Low",
+      "status": "Confirmed",
+      "title": "Missing Security Header: X-Content-Type-Options on /api/vulnerable/profile",
+      "endpoint": "/api/vulnerable/profile",
+      "method": "GET",
+      "evidence": "Header \"X-Content-Type-Options\" was not returned by server in response to GET /api/vulnerable/profile",
+      "reproduction_steps": [
+        "Send GET request to http://localhost:3000/api/vulnerable/profile",
+        "Inspect response headers for presence of \"X-Content-Type-Options\""
+      ],
+      "impact": "Missing X-Content-Type-Options degrades browser-side defense-in-depth protections.",
+      "remediation": "Set X-Content-Type-Options: nosniff to prevent MIME-sniffing.",
+      "owasp_ref": "OWASP A05:2021 - Security Misconfiguration",
+      "cwe_ref": "CWE-16"
+    },
+    {
+      "id": "HEADER-MISSING-REFERRER_POLICY",
+      "category": "Security Headers",
+      "severity": "Low",
+      "status": "Confirmed",
+      "title": "Missing Security Header: Referrer-Policy on /api/vulnerable/profile",
+      "endpoint": "/api/vulnerable/profile",
+      "method": "GET",
+      "evidence": "Header \"Referrer-Policy\" was not returned by server in response to GET /api/vulnerable/profile",
+      "reproduction_steps": [
+        "Send GET request to http://localhost:3000/api/vulnerable/profile",
+        "Inspect response headers for presence of \"Referrer-Policy\""
+      ],
+      "impact": "Missing Referrer-Policy degrades browser-side defense-in-depth protections.",
+      "remediation": "Configure Referrer-Policy: strict-origin-when-cross-origin.",
+      "owasp_ref": "OWASP A05:2021 - Security Misconfiguration",
+      "cwe_ref": "CWE-16"
+    },
+    {
+      "id": "HEADER-LEAK-POWERED-BY",
+      "category": "Security Headers",
+      "severity": "Low",
+      "status": "Confirmed",
+      "title": "Technology Fingerprint Disclosed via X-Powered-By on /api/vulnerable/profile",
+      "endpoint": "/api/vulnerable/profile",
+      "method": "GET",
+      "evidence": "X-Powered-By: Express/4.21.2",
+      "reproduction_steps": [
+        "Inspect headers of /api/vulnerable/profile"
+      ],
+      "impact": "Exposes underlying framework and potential version details to reconnaissance.",
+      "remediation": "Disable fingerprinting in Express via app.disable(\"x-powered-by\") or helmet.hidePoweredBy().",
+      "owasp_ref": "OWASP A05:2021 - Security Misconfiguration",
+      "cwe_ref": "CWE-200: Exposure of Sensitive Information"
+    },
+    {
+      "id": "HEADER-PRESENT-CONTENT_SECURITY_POLICY",
+      "category": "Security Headers",
+      "severity": "Informational",
+      "status": "Secure",
+      "title": "Header Present: Content-Security-Policy",
+      "endpoint": "/api/secure/profile",
+      "method": "GET",
+      "evidence": "Content-Security-Policy: default-src 'self'; frame-ancestors 'none'; object-src 'none'",
+      "reproduction_steps": [
+        "Tested GET /api/secure/profile"
+      ],
+      "impact": "Header active and enforcing browser policy.",
+      "remediation": "Maintain header configuration."
+    },
+    {
+      "id": "HEADER-PRESENT-X_FRAME_OPTIONS",
+      "category": "Security Headers",
+      "severity": "Informational",
+      "status": "Secure",
+      "title": "Header Present: X-Frame-Options",
+      "endpoint": "/api/secure/profile",
+      "method": "GET",
+      "evidence": "X-Frame-Options: DENY",
+      "reproduction_steps": [
+        "Tested GET /api/secure/profile"
+      ],
+      "impact": "Header active and enforcing browser policy.",
+      "remediation": "Maintain header configuration."
+    },
+    {
+      "id": "HEADER-PRESENT-X_CONTENT_TYPE_OPTIONS",
+      "category": "Security Headers",
+      "severity": "Informational",
+      "status": "Secure",
+      "title": "Header Present: X-Content-Type-Options",
+      "endpoint": "/api/secure/profile",
+      "method": "GET",
+      "evidence": "X-Content-Type-Options: nosniff",
+      "reproduction_steps": [
+        "Tested GET /api/secure/profile"
+      ],
+      "impact": "Header active and enforcing browser policy.",
+      "remediation": "Maintain header configuration."
+    },
+    {
+      "id": "HEADER-PRESENT-REFERRER_POLICY",
+      "category": "Security Headers",
+      "severity": "Informational",
+      "status": "Secure",
+      "title": "Header Present: Referrer-Policy",
+      "endpoint": "/api/secure/profile",
+      "method": "GET",
+      "evidence": "Referrer-Policy: strict-origin-when-cross-origin",
+      "reproduction_steps": [
+        "Tested GET /api/secure/profile"
+      ],
+      "impact": "Header active and enforcing browser policy.",
+      "remediation": "Maintain header configuration."
+    }
+  ]
+}

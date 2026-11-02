@@ -1,0 +1,44 @@
+{
+  "name": "website-security-testing-toolkit",
+  "version": "1.0.0",
+  "description": "Authorized web application security assessment toolkit, non-destructive automated test runners, payload collections, and remediation guides",
+  "author": "awanishVTL",
+  "license": "Apache-2.0",
+  "type": "commonjs",
+  "main": "scripts/security-scan.js",
+  "scripts": {
+    "start": "node fixtures/server.js",
+    "fixture:start": "node fixtures/server.js",
+    "test": "node --test tests/*.test.js",
+    "test:xss": "node scripts/xss-test.js",
+    "test:sqli": "node scripts/sqli-test.js",
+    "test:csrf": "node scripts/csrf-test.js",
+    "test:cors": "node scripts/cors-test.js",
+    "test:headers": "node scripts/headers-check.js",
+    "security:scan": "node scripts/security-scan.js"
+  },
+  "keywords": [
+    "security",
+    "appsec",
+    "devsecops",
+    "xss",
+    "sqli",
+    "csrf",
+    "cors",
+    "security-headers",
+    "vulnerability-testing",
+    "owasp"
+  ],
+  "dependencies": {
+    "cookie-parser": "^1.4.7",
+    "cors": "^2.8.5",
+    "express": "^4.21.2"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.1",
+    "typescript": "^5.7.2"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}

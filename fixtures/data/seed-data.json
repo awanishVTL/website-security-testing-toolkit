@@ -1,0 +1,40 @@
+{
+  "users": [
+    {
+      "id": 1,
+      "username": "alice",
+      "email": "alice.demo@example.test",
+      "role": "user",
+      "balance": 500,
+      "password_hash": "$2b$10$EixZaYVK1fsbw1ZfbX3OXePaWxn96p36WQoeG6Lruj3vjPGga31lW"
+    },
+    {
+      "id": 2,
+      "username": "bob",
+      "email": "bob.demo@example.test",
+      "role": "user",
+      "balance": 250,
+      "password_hash": "$2b$10$EixZaYVK1fsbw1ZfbX3OXePaWxn96p36WQoeG6Lruj3vjPGga31lW"
+    },
+    {
+      "id": 99,
+      "username": "admin",
+      "email": "admin.demo@example.test",
+      "role": "admin",
+      "balance": 10000,
+      "password_hash": "$2b$10$EixZaYVK1fsbw1ZfbX3OXePaWxn96p36WQoeG6Lruj3vjPGga31lW"
+    }
+  ],
+  "comments": [
+    {
+      "id": 1,
+      "author": "alice",
+      "content": "Welcome to the security testing laboratory! Everything here is dummy data."
+    },
+    {
+      "id": 2,
+      "author": "bob",
+      "content": "Make sure to test both /api/vulnerable and /api/secure endpoints."
+    }
+  ]
+}

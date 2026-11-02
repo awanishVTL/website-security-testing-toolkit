@@ -1,0 +1,126 @@
+{
+  "target_application": "XSS Security Audit",
+  "target_url": "http://localhost:3000",
+  "assessment_date": "2026-11-02T07:18:15.982Z",
+  "tested_endpoints": [
+    "/api/vulnerable/search",
+    "/api/secure/search"
+  ],
+  "summary": {
+    "total_findings": 6,
+    "confirmed": 3,
+    "potential": 0,
+    "secure": 3,
+    "by_severity": {
+      "Critical": 0,
+      "High": 3,
+      "Medium": 0,
+      "Low": 0,
+      "Informational": 3
+    }
+  },
+  "findings": [
+    {
+      "id": "FINDING-XSS-REFLECT-001",
+      "category": "Cross-Site Scripting (XSS)",
+      "severity": "High",
+      "status": "Confirmed",
+      "title": "Unescaped Reflected Input on /api/vulnerable/search",
+      "endpoint": "/api/vulnerable/search",
+      "method": "GET",
+      "evidence": "Payload \"<test-xss-sentinel>xss_probe_01</test-xss-sentinel>\" reflected raw in response:\n\n    <html>\n      <head><title>Search Results</title></head>\n      <body>\n        <h1>Search Results</h1>\n        <p>You searched for: <test-xss-sentinel>xss_probe_01</test-xss-sentinel></p>\n        <div id=\"results\">No matching records found.</div>\n      </body>\n    </html>\n  ...",
+      "reproduction_steps": [
+        "Send GET request to http://localhost:3000/api/vulnerable/search?q=%3Ctest-xss-sentinel%3Exss_probe_01%3C%2Ftest-xss-sentinel%3E",
+        "Inspect response body for raw unescaped token: \"<test-xss-sentinel>xss_probe_01</test-xss-sentinel>\"",
+        "Observe absence of HTML entity encoding or Content-Security-Policy restriction"
+      ],
+      "impact": "An attacker can execute arbitrary JavaScript in the victim browser session, enabling session hijacking or unauthorized actions.",
+      "remediation": "Apply contextual HTML entity encoding using a safe templating engine or escape utility before embedding untrusted data.",
+      "owasp_ref": "OWASP A03:2021 - Injection",
+      "cwe_ref": "CWE-79: Improper Neutralization of Input During Web Page Generation"
+    },
+    {
+      "id": "FINDING-XSS-REFLECT-002",
+      "category": "Cross-Site Scripting (XSS)",
+      "severity": "High",
+      "status": "Confirmed",
+      "title": "Unescaped Reflected Input on /api/vulnerable/search",
+      "endpoint": "/api/vulnerable/search",
+      "method": "GET",
+      "evidence": "Payload \"\"><img src=x onerror=console.log('xss_probe_02')>\" reflected raw in response:\n\n    <html>\n      <head><title>Search Results</title></head>\n      <body>\n        <h1>Search Results</h1>\n        <p>You searched for: \"><img src=x onerror=console.log('xss_probe_02')></p>\n        <div id=\"results\">No matching records found.</div>\n      </body>\n    </html>\n  ...",
+      "reproduction_steps": [
+        "Send GET request to http://localhost:3000/api/vulnerable/search?q=%22%3E%3Cimg%20src%3Dx%20onerror%3Dconsole.log('xss_probe_02')%3E",
+        "Inspect response body for raw unescaped token: \"\"><img src=x onerror=console.log('xss_probe_02')>\"",
+        "Observe absence of HTML entity encoding or Content-Security-Policy restriction"
+      ],
+      "impact": "An attacker can execute arbitrary JavaScript in the victim browser session, enabling session hijacking or unauthorized actions.",
+      "remediation": "Use context-aware attribute escaping. In React/modern UI, bind values via JSX properties rather than string interpolation.",
+      "owasp_ref": "OWASP A03:2021 - Injection",
+      "cwe_ref": "CWE-79: Improper Neutralization of Input During Web Page Generation"
+    },
+    {
+      "id": "FINDING-XSS-JS-CONTEXT-001",
+      "category": "Cross-Site Scripting (XSS)",
+      "severity": "High",
+      "status": "Confirmed",
+      "title": "Unescaped Reflected Input on /api/vulnerable/search",
+      "endpoint": "/api/vulnerable/search",
+      "method": "GET",
+      "evidence": "Payload \"';console.log('js_context_probe');//\" reflected raw in response:\n\n    <html>\n      <head><title>Search Results</title></head>\n      <body>\n        <h1>Search Results</h1>\n        <p>You searched for: ';console.log('js_context_probe');//</p>\n        <div id=\"results\">No matching records found.</div>\n      </body>\n    </html>\n  ...",
+      "reproduction_steps": [
+        "Send GET request to http://localhost:3000/api/vulnerable/search?q='%3Bconsole.log('js_context_probe')%3B%2F%2F",
+        "Inspect response body for raw unescaped token: \"';console.log('js_context_probe');//\"",
+        "Observe absence of HTML entity encoding or Content-Security-Policy restriction"
+      ],
+      "impact": "An attacker can execute arbitrary JavaScript in the victim browser session, enabling session hijacking or unauthorized actions.",
+      "remediation": "Never interpolate raw strings into <script> blocks. Use JSON.parse(element.dataset.props) or secure serialization.",
+      "owasp_ref": "OWASP A03:2021 - Injection",
+      "cwe_ref": "CWE-79: Improper Neutralization of Input During Web Page Generation"
+    },
+    {
+      "id": "SAFE-XSS-REFLECT-001",
+      "category": "Cross-Site Scripting (XSS)",
+      "severity": "Informational",
+      "status": "Secure",
+      "title": "Contextual Output Encoding Verified on /api/secure/search",
+      "endpoint": "/api/secure/search",
+      "method": "GET",
+      "evidence": "Input properly escaped or filtered: Response contained encoded entities.",
+      "reproduction_steps": [
+        "Tested GET http://localhost:3000/api/secure/search?q=%3Ctest-xss-sentinel%3Exss_probe_01%3C%2Ftest-xss-sentinel%3E"
+      ],
+      "impact": "Neutralized. Script injection prevented.",
+      "remediation": "Maintain existing contextual output escaping and CSP headers."
+    },
+    {
+      "id": "SAFE-XSS-REFLECT-002",
+      "category": "Cross-Site Scripting (XSS)",
+      "severity": "Informational",
+      "status": "Secure",
+      "title": "Contextual Output Encoding Verified on /api/secure/search",
+      "endpoint": "/api/secure/search",
+      "method": "GET",
+      "evidence": "Input properly escaped or filtered: Response contained encoded entities.",
+      "reproduction_steps": [
+        "Tested GET http://localhost:3000/api/secure/search?q=%22%3E%3Cimg%20src%3Dx%20onerror%3Dconsole.log('xss_probe_02')%3E"
+      ],
+      "impact": "Neutralized. Script injection prevented.",
+      "remediation": "Maintain existing contextual output escaping and CSP headers."
+    },
+    {
+      "id": "SAFE-XSS-JS-CONTEXT-001",
+      "category": "Cross-Site Scripting (XSS)",
+      "severity": "Informational",
+      "status": "Secure",
+      "title": "Contextual Output Encoding Verified on /api/secure/search",
+      "endpoint": "/api/secure/search",
+      "method": "GET",
+      "evidence": "Input properly escaped or filtered: Response contained encoded entities.",
+      "reproduction_steps": [
+        "Tested GET http://localhost:3000/api/secure/search?q='%3Bconsole.log('js_context_probe')%3B%2F%2F"
+      ],
+      "impact": "Neutralized. Script injection prevented.",
+      "remediation": "Maintain existing contextual output escaping and CSP headers."
+    }
+  ]
+}

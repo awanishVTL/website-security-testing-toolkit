@@ -1,0 +1,534 @@
+{
+  "target_application": "Web Application Assessment Lab",
+  "target_url": "http://localhost:3000",
+  "assessment_date": "2026-11-02T07:18:52.064Z",
+  "tested_endpoints": [
+    "/api/vulnerable/search",
+    "/api/secure/search",
+    "/api/vulnerable/users",
+    "/api/secure/users",
+    "/api/vulnerable/login",
+    "/api/secure/login",
+    "/api/vulnerable/transfer",
+    "/api/secure/transfer",
+    "/api/vulnerable/profile",
+    "/api/secure/profile",
+    "/api/vulnerable/idor/user/:id",
+    "/api/secure/idor/user/:id"
+  ],
+  "summary": {
+    "total_findings": 30,
+    "confirmed": 17,
+    "potential": 0,
+    "secure": 13,
+    "by_severity": {
+      "Critical": 2,
+      "High": 9,
+      "Medium": 3,
+      "Low": 3,
+      "Informational": 13
+    }
+  },
+  "findings": [
+    {
+      "id": "FINDING-XSS-REFLECT-001",
+      "category": "Cross-Site Scripting (XSS)",
+      "severity": "High",
+      "status": "Confirmed",
+      "title": "Unescaped Reflected Input on /api/vulnerable/search",
+      "endpoint": "/api/vulnerable/search",
+      "method": "GET",
+      "evidence": "Payload \"<test-xss-sentinel>xss_probe_01</test-xss-sentinel>\" reflected raw in response:\n\n    <html>\n      <head><title>Search Results</title></head>\n      <body>\n        <h1>Search Results</h1>\n        <p>You searched for: <test-xss-sentinel>xss_probe_01</test-xss-sentinel></p>\n        <div id=\"results\">No matching records found.</div>\n      </body>\n    </html>\n  ...",
+      "reproduction_steps": [
+        "Send GET request to http://localhost:3000/api/vulnerable/search?q=%3Ctest-xss-sentinel%3Exss_probe_01%3C%2Ftest-xss-sentinel%3E",
+        "Inspect response body for raw unescaped token: \"<test-xss-sentinel>xss_probe_01</test-xss-sentinel>\"",
+        "Observe absence of HTML entity encoding or Content-Security-Policy restriction"
+      ],
+      "impact": "An attacker can execute arbitrary JavaScript in the victim browser session, enabling session hijacking or unauthorized actions.",
+      "remediation": "Apply contextual HTML entity encoding using a safe templating engine or escape utility before embedding untrusted data.",
+      "owasp_ref": "OWASP A03:2021 - Injection",
+      "cwe_ref": "CWE-79: Improper Neutralization of Input During Web Page Generation"
+    },
+    {
+      "id": "FINDING-XSS-REFLECT-002",
+      "category": "Cross-Site Scripting (XSS)",
+      "severity": "High",
+      "status": "Confirmed",
+      "title": "Unescaped Reflected Input on /api/vulnerable/search",
+      "endpoint": "/api/vulnerable/search",
+      "method": "GET",
+      "evidence": "Payload \"\"><img src=x onerror=console.log('xss_probe_02')>\" reflected raw in response:\n\n    <html>\n      <head><title>Search Results</title></head>\n      <body>\n        <h1>Search Results</h1>\n        <p>You searched for: \"><img src=x onerror=console.log('xss_probe_02')></p>\n        <div id=\"results\">No matching records found.</div>\n      </body>\n    </html>\n  ...",
+      "reproduction_steps": [
+        "Send GET request to http://localhost:3000/api/vulnerable/search?q=%22%3E%3Cimg%20src%3Dx%20onerror%3Dconsole.log('xss_probe_02')%3E",
+        "Inspect response body for raw unescaped token: \"\"><img src=x onerror=console.log('xss_probe_02')>\"",
+        "Observe absence of HTML entity encoding or Content-Security-Policy restriction"
+      ],
+      "impact": "An attacker can execute arbitrary JavaScript in the victim browser session, enabling session hijacking or unauthorized actions.",
+      "remediation": "Use context-aware attribute escaping. In React/modern UI, bind values via JSX properties rather than string interpolation.",
+      "owasp_ref": "OWASP A03:2021 - Injection",
+      "cwe_ref": "CWE-79: Improper Neutralization of Input During Web Page Generation"
+    },
+    {
+      "id": "FINDING-XSS-JS-CONTEXT-001",
+      "category": "Cross-Site Scripting (XSS)",
+      "severity": "High",
+      "status": "Confirmed",
+      "title": "Unescaped Reflected Input on /api/vulnerable/search",
+      "endpoint": "/api/vulnerable/search",
+      "method": "GET",
+      "evidence": "Payload \"';console.log('js_context_probe');//\" reflected raw in response:\n\n    <html>\n      <head><title>Search Results</title></head>\n      <body>\n        <h1>Search Results</h1>\n        <p>You searched for: ';console.log('js_context_probe');//</p>\n        <div id=\"results\">No matching records found.</div>\n      </body>\n    </html>\n  ...",
+      "reproduction_steps": [
+        "Send GET request to http://localhost:3000/api/vulnerable/search?q='%3Bconsole.log('js_context_probe')%3B%2F%2F",
+        "Inspect response body for raw unescaped token: \"';console.log('js_context_probe');//\"",
+        "Observe absence of HTML entity encoding or Content-Security-Policy restriction"
+      ],
+      "impact": "An attacker can execute arbitrary JavaScript in the victim browser session, enabling session hijacking or unauthorized actions.",
+      "remediation": "Never interpolate raw strings into <script> blocks. Use JSON.parse(element.dataset.props) or secure serialization.",
+      "owasp_ref": "OWASP A03:2021 - Injection",
+      "cwe_ref": "CWE-79: Improper Neutralization of Input During Web Page Generation"
+    },
+    {
+      "id": "SAFE-XSS-REFLECT-001",
+      "category": "Cross-Site Scripting (XSS)",
+      "severity": "Informational",
+      "status": "Secure",
+      "title": "Contextual Output Encoding Verified on /api/secure/search",
+      "endpoint": "/api/secure/search",
+      "method": "GET",
+      "evidence": "Input properly escaped or filtered: Response contained encoded entities.",
+      "reproduction_steps": [
+        "Tested GET http://localhost:3000/api/secure/search?q=%3Ctest-xss-sentinel%3Exss_probe_01%3C%2Ftest-xss-sentinel%3E"
+      ],
+      "impact": "Neutralized. Script injection prevented.",
+      "remediation": "Maintain existing contextual output escaping and CSP headers."
+    },
+    {
+      "id": "SAFE-XSS-REFLECT-002",
+      "category": "Cross-Site Scripting (XSS)",
+      "severity": "Informational",
+      "status": "Secure",
+      "title": "Contextual Output Encoding Verified on /api/secure/search",
+      "endpoint": "/api/secure/search",
+      "method": "GET",
+      "evidence": "Input properly escaped or filtered: Response contained encoded entities.",
+      "reproduction_steps": [
+        "Tested GET http://localhost:3000/api/secure/search?q=%22%3E%3Cimg%20src%3Dx%20onerror%3Dconsole.log('xss_probe_02')%3E"
+      ],
+      "impact": "Neutralized. Script injection prevented.",
+      "remediation": "Maintain existing contextual output escaping and CSP headers."
+    },
+    {
+      "id": "SAFE-XSS-JS-CONTEXT-001",
+      "category": "Cross-Site Scripting (XSS)",
+      "severity": "Informational",
+      "status": "Secure",
+      "title": "Contextual Output Encoding Verified on /api/secure/search",
+      "endpoint": "/api/secure/search",
+      "method": "GET",
+      "evidence": "Input properly escaped or filtered: Response contained encoded entities.",
+      "reproduction_steps": [
+        "Tested GET http://localhost:3000/api/secure/search?q='%3Bconsole.log('js_context_probe')%3B%2F%2F"
+      ],
+      "impact": "Neutralized. Script injection prevented.",
+      "remediation": "Maintain existing contextual output escaping and CSP headers."
+    },
+    {
+      "id": "SQLI-ERR-CONFIRMED",
+      "category": "SQL Injection",
+      "severity": "Critical",
+      "status": "Confirmed",
+      "title": "Raw SQL Syntax Error Leakage on /api/vulnerable/users",
+      "endpoint": "/api/vulnerable/users",
+      "method": "GET",
+      "evidence": "Database error signature matched: /you have an error in your sql syntax/i\nResponse snippet: {\"error\":\"Internal Database Error\",\"sql_message\":\"You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near ''' at line 1\",\"query\":\"SELECT id, username, email FROM users WHER",
+      "reproduction_steps": [
+        "Send GET request to http://localhost:3000/api/vulnerable/users?query='",
+        "Observe HTTP 500 with unhandled SQL error syntax disclosure"
+      ],
+      "impact": "Critical. Attackers can extract complete database contents, bypass access controls, or tamper with business data.",
+      "remediation": "Replace string concatenation with parameterized prepared statements (e.g. db.query(sql, [param])).",
+      "owasp_ref": "OWASP A03:2021 - Injection",
+      "cwe_ref": "CWE-89: Improper Neutralization of Special Elements used in an SQL Command"
+    },
+    {
+      "id": "SQLI-BOOL--api-vulnerable-users",
+      "category": "SQL Injection",
+      "severity": "High",
+      "status": "Confirmed",
+      "title": "Boolean Query Response Disparity on /api/vulnerable/users",
+      "endpoint": "/api/vulnerable/users",
+      "method": "GET",
+      "evidence": "True payload returned 95 bytes; False payload returned 95 bytes.",
+      "reproduction_steps": [
+        "Submit 1' AND '1'='1 -> returns filtered data",
+        "Submit 1' AND '1'='2 -> returns empty set or error"
+      ],
+      "impact": "Enables blind SQL inference of database records character-by-character.",
+      "remediation": "Use strict type casting and prepared statements."
+    },
+    {
+      "id": "SQLI-SAFE--api-secure-users",
+      "category": "SQL Injection",
+      "severity": "Informational",
+      "status": "Secure",
+      "title": "Query Parameters Safely Bound on /api/secure/users",
+      "endpoint": "/api/secure/users",
+      "method": "GET",
+      "evidence": "Status: 200. No SQL parse signatures encountered.",
+      "reproduction_steps": [
+        "Tested GET http://localhost:3000/api/secure/users?query='"
+      ],
+      "impact": "Parameters properly bounded.",
+      "remediation": "Maintain parameterized query practices."
+    },
+    {
+      "id": "SQLI-AUTH-BYPASS",
+      "category": "SQL Injection",
+      "severity": "Critical",
+      "status": "Confirmed",
+      "title": "Authentication Bypass via SQL Injection on /api/vulnerable/login",
+      "endpoint": "/api/vulnerable/login",
+      "method": "POST",
+      "evidence": "Bypass payload granted authenticated session without valid password: {\"success\":true,\"message\":\"Authentication successful\",\"user\":{\"id\":1,\"username\":\"alice\",\"role\":\"user\"}}",
+      "reproduction_steps": [
+        "Submit POST to /api/vulnerable/login with username: \"admin' OR '1'='1' -- \"",
+        "Observe successful HTTP 200 authentication response"
+      ],
+      "impact": "Critical. Attackers can log in as administrator or arbitrary users without knowing their password.",
+      "remediation": "Validate credentials using parameterized SELECT WHERE username = ? and compare hashed password via bcrypt.",
+      "owasp_ref": "OWASP A03:2021 - Injection",
+      "cwe_ref": "CWE-89"
+    },
+    {
+      "id": "SQLI-AUTH-SAFE--api-secure-login",
+      "category": "SQL Injection",
+      "severity": "Informational",
+      "status": "Secure",
+      "title": "Authentication Input Properly Handled on /api/secure/login",
+      "endpoint": "/api/secure/login",
+      "method": "POST",
+      "evidence": "Rejected with status 401: {\"success\":false,\"message\":\"Invalid username or password\"}",
+      "reproduction_steps": [
+        "Submitted SQL injection payload to login endpoint"
+      ],
+      "impact": "Protected against SQL authentication bypass.",
+      "remediation": "Maintain secure parameterization and password hashing."
+    },
+    {
+      "id": "CSRF-GET-ACTION",
+      "category": "Cross-Site Request Forgery (CSRF)",
+      "severity": "High",
+      "status": "Confirmed",
+      "title": "State-Changing Operation Executable via HTTP GET on /api/vulnerable/transfer",
+      "endpoint": "/api/vulnerable/transfer",
+      "method": "GET",
+      "evidence": "HTTP GET triggered state mutation: {\"success\":true,\"message\":\"Transferred $1 to audit_test (VULNERABLE: No CSRF token or origin check)\",\"recipient\":\"audit_test\",\"amount\":1}",
+      "reproduction_steps": [
+        "Send HTTP GET request to http://localhost:3000/api/vulnerable/transfer?recipient=audit_test&amount=1",
+        "Notice endpoint executes transaction without requiring POST or CSRF validation"
+      ],
+      "impact": "High. An attacker can execute arbitrary state changes by embedding the URL in a simple <img src=\"...\"> on a third-party webpage.",
+      "remediation": "Disallow GET on state-changing endpoints. Enforce POST/PUT with CSRF tokens.",
+      "owasp_ref": "OWASP A01:2021 - Broken Access Control",
+      "cwe_ref": "CWE-352: Cross-Site Request Forgery (CSRF)"
+    },
+    {
+      "id": "CSRF-TOKEN-MISSING",
+      "category": "Cross-Site Request Forgery (CSRF)",
+      "severity": "High",
+      "status": "Confirmed",
+      "title": "State-Changing POST Accepted Without CSRF Token on /api/vulnerable/transfer",
+      "endpoint": "/api/vulnerable/transfer",
+      "method": "POST",
+      "evidence": "POST succeeded without X-CSRF-Token or CSRF form parameter: HTTP 200 OK",
+      "reproduction_steps": [
+        "Send POST to http://localhost:3000/api/vulnerable/transfer with session cookie but omit CSRF token",
+        "Observe successful transaction execution"
+      ],
+      "impact": "Enables cross-origin sites to forge actions on behalf of authenticated users.",
+      "remediation": "Implement anti-CSRF token middleware (e.g., csrf-csrf or csurf) and require custom headers for API calls.",
+      "owasp_ref": "OWASP A01:2021 - Broken Access Control",
+      "cwe_ref": "CWE-352"
+    },
+    {
+      "id": "CSRF-SAMESITE-MISSING",
+      "category": "Cross-Site Request Forgery (CSRF)",
+      "severity": "Medium",
+      "status": "Confirmed",
+      "title": "Session Cookie Lacks SameSite Restriction on /api/vulnerable/transfer",
+      "endpoint": "/api/vulnerable/transfer",
+      "method": "GET/POST",
+      "evidence": "Set-Cookie: session_id=vulnerable-session-token-12345; Path=/; HttpOnly",
+      "reproduction_steps": [
+        "Inspect Set-Cookie header on response",
+        "Verify absence of SameSite=Lax or SameSite=Strict"
+      ],
+      "impact": "Cookies are attached to cross-site requests, increasing vulnerability to CSRF.",
+      "remediation": "Configure SameSite=Lax or SameSite=Strict in cookie options: res.cookie(name, val, { sameSite: \"lax\", httpOnly: true, secure: true }).",
+      "cwe_ref": "CWE-1275"
+    },
+    {
+      "id": "CSRF-TOKEN-ENFORCED--api-secure-transfer",
+      "category": "Cross-Site Request Forgery (CSRF)",
+      "severity": "Informational",
+      "status": "Secure",
+      "title": "Anti-CSRF Token Enforced on /api/secure/transfer",
+      "endpoint": "/api/secure/transfer",
+      "method": "POST",
+      "evidence": "Request without token rejected with HTTP 403: {\"error\":\"Forbidden: Missing or invalid CSRF token\"}",
+      "reproduction_steps": [
+        "Attempted tokenless POST to /api/secure/transfer"
+      ],
+      "impact": "Cross-site forgery prevented by anti-CSRF validation.",
+      "remediation": "Keep CSRF tokens required on all non-safe HTTP methods."
+    },
+    {
+      "id": "CORS-VULN-ARBITRARY_ORIGIN",
+      "category": "CORS Misconfiguration",
+      "severity": "High",
+      "status": "Confirmed",
+      "title": "Arbitrary Origin Reflected with Credentials Allowed on /api/vulnerable/profile",
+      "endpoint": "/api/vulnerable/profile",
+      "method": "GET",
+      "evidence": "Origin: https://unauthorized-attacker.test reflected in Access-Control-Allow-Origin: https://unauthorized-attacker.test with Access-Control-Allow-Credentials: true",
+      "reproduction_steps": [
+        "Send GET to http://localhost:3000/api/vulnerable/profile with header 'Origin: https://unauthorized-attacker.test'",
+        "Verify response contains 'Access-Control-Allow-Origin: https://unauthorized-attacker.test' and 'Access-Control-Allow-Credentials: true'"
+      ],
+      "impact": "High. Untrusted external web origins can read sensitive user data and bypass browser SOP.",
+      "remediation": "Replace dynamic origin reflection with a static allowlist of trusted origins.",
+      "owasp_ref": "OWASP A05:2021 - Security Misconfiguration",
+      "cwe_ref": "CWE-346: Origin Validation Error"
+    },
+    {
+      "id": "CORS-VULN-NULL_ORIGIN",
+      "category": "CORS Misconfiguration",
+      "severity": "High",
+      "status": "Confirmed",
+      "title": "Arbitrary Origin Reflected with Credentials Allowed on /api/vulnerable/profile",
+      "endpoint": "/api/vulnerable/profile",
+      "method": "GET",
+      "evidence": "Origin: null reflected in Access-Control-Allow-Origin: null with Access-Control-Allow-Credentials: true",
+      "reproduction_steps": [
+        "Send GET to http://localhost:3000/api/vulnerable/profile with header 'Origin: null'",
+        "Verify response contains 'Access-Control-Allow-Origin: null' and 'Access-Control-Allow-Credentials: true'"
+      ],
+      "impact": "High. Untrusted external web origins can read sensitive user data and bypass browser SOP.",
+      "remediation": "Replace dynamic origin reflection with a static allowlist of trusted origins.",
+      "owasp_ref": "OWASP A05:2021 - Security Misconfiguration",
+      "cwe_ref": "CWE-346: Origin Validation Error"
+    },
+    {
+      "id": "CORS-SAFE--api-secure-profile-arbitrary_origin",
+      "category": "CORS Misconfiguration",
+      "severity": "Informational",
+      "status": "Secure",
+      "title": "Strict CORS Origin Handling on /api/secure/profile",
+      "endpoint": "/api/secure/profile",
+      "method": "GET",
+      "evidence": "Untrusted origin was not reflected. ACAO: None",
+      "reproduction_steps": [
+        "Tested GET with Origin: https://unauthorized-attacker.test"
+      ],
+      "impact": "Unauthorized cross-origin reading prevented.",
+      "remediation": "Maintain origin allowlisting."
+    },
+    {
+      "id": "CORS-SAFE--api-secure-profile-null_origin",
+      "category": "CORS Misconfiguration",
+      "severity": "Informational",
+      "status": "Secure",
+      "title": "Strict CORS Origin Handling on /api/secure/profile",
+      "endpoint": "/api/secure/profile",
+      "method": "GET",
+      "evidence": "Untrusted origin was not reflected. ACAO: None",
+      "reproduction_steps": [
+        "Tested GET with Origin: null"
+      ],
+      "impact": "Unauthorized cross-origin reading prevented.",
+      "remediation": "Maintain origin allowlisting."
+    },
+    {
+      "id": "HEADER-MISSING-CONTENT_SECURITY_POLICY",
+      "category": "Security Headers",
+      "severity": "Medium",
+      "status": "Confirmed",
+      "title": "Missing Security Header: Content-Security-Policy on /api/vulnerable/profile",
+      "endpoint": "/api/vulnerable/profile",
+      "method": "GET",
+      "evidence": "Header \"Content-Security-Policy\" was not returned by server in response to GET /api/vulnerable/profile",
+      "reproduction_steps": [
+        "Send GET request to http://localhost:3000/api/vulnerable/profile",
+        "Inspect response headers for presence of \"Content-Security-Policy\""
+      ],
+      "impact": "Missing Content-Security-Policy degrades browser-side defense-in-depth protections.",
+      "remediation": "Implement CSP directives (e.g. default-src 'self'; script-src 'self').",
+      "owasp_ref": "OWASP A05:2021 - Security Misconfiguration",
+      "cwe_ref": "CWE-16"
+    },
+    {
+      "id": "HEADER-MISSING-X_FRAME_OPTIONS",
+      "category": "Security Headers",
+      "severity": "Medium",
+      "status": "Confirmed",
+      "title": "Missing Security Header: X-Frame-Options on /api/vulnerable/profile",
+      "endpoint": "/api/vulnerable/profile",
+      "method": "GET",
+      "evidence": "Header \"X-Frame-Options\" was not returned by server in response to GET /api/vulnerable/profile",
+      "reproduction_steps": [
+        "Send GET request to http://localhost:3000/api/vulnerable/profile",
+        "Inspect response headers for presence of \"X-Frame-Options\""
+      ],
+      "impact": "Missing X-Frame-Options degrades browser-side defense-in-depth protections.",
+      "remediation": "Set X-Frame-Options: DENY or SAMEORIGIN to prevent Clickjacking.",
+      "owasp_ref": "OWASP A05:2021 - Security Misconfiguration",
+      "cwe_ref": "CWE-16"
+    },
+    {
+      "id": "HEADER-MISSING-X_CONTENT_TYPE_OPTIONS",
+      "category": "Security Headers",
+      "severity": "Low",
+      "status": "Confirmed",
+      "title": "Missing Security Header: X-Content-Type-Options on /api/vulnerable/profile",
+      "endpoint": "/api/vulnerable/profile",
+      "method": "GET",
+      "evidence": "Header \"X-Content-Type-Options\" was not returned by server in response to GET /api/vulnerable/profile",
+      "reproduction_steps": [
+        "Send GET request to http://localhost:3000/api/vulnerable/profile",
+        "Inspect response headers for presence of \"X-Content-Type-Options\""
+      ],
+      "impact": "Missing X-Content-Type-Options degrades browser-side defense-in-depth protections.",
+      "remediation": "Set X-Content-Type-Options: nosniff to prevent MIME-sniffing.",
+      "owasp_ref": "OWASP A05:2021 - Security Misconfiguration",
+      "cwe_ref": "CWE-16"
+    },
+    {
+      "id": "HEADER-MISSING-REFERRER_POLICY",
+      "category": "Security Headers",
+      "severity": "Low",
+      "status": "Confirmed",
+      "title": "Missing Security Header: Referrer-Policy on /api/vulnerable/profile",
+      "endpoint": "/api/vulnerable/profile",
+      "method": "GET",
+      "evidence": "Header \"Referrer-Policy\" was not returned by server in response to GET /api/vulnerable/profile",
+      "reproduction_steps": [
+        "Send GET request to http://localhost:3000/api/vulnerable/profile",
+        "Inspect response headers for presence of \"Referrer-Policy\""
+      ],
+      "impact": "Missing Referrer-Policy degrades browser-side defense-in-depth protections.",
+      "remediation": "Configure Referrer-Policy: strict-origin-when-cross-origin.",
+      "owasp_ref": "OWASP A05:2021 - Security Misconfiguration",
+      "cwe_ref": "CWE-16"
+    },
+    {
+      "id": "HEADER-LEAK-POWERED-BY",
+      "category": "Security Headers",
+      "severity": "Low",
+      "status": "Confirmed",
+      "title": "Technology Fingerprint Disclosed via X-Powered-By on /api/vulnerable/profile",
+      "endpoint": "/api/vulnerable/profile",
+      "method": "GET",
+      "evidence": "X-Powered-By: Express/4.21.2",
+      "reproduction_steps": [
+        "Inspect headers of /api/vulnerable/profile"
+      ],
+      "impact": "Exposes underlying framework and potential version details to reconnaissance.",
+      "remediation": "Disable fingerprinting in Express via app.disable(\"x-powered-by\") or helmet.hidePoweredBy().",
+      "owasp_ref": "OWASP A05:2021 - Security Misconfiguration",
+      "cwe_ref": "CWE-200: Exposure of Sensitive Information"
+    },
+    {
+      "id": "HEADER-PRESENT-CONTENT_SECURITY_POLICY",
+      "category": "Security Headers",
+      "severity": "Informational",
+      "status": "Secure",
+      "title": "Header Present: Content-Security-Policy",
+      "endpoint": "/api/secure/profile",
+      "method": "GET",
+      "evidence": "Content-Security-Policy: default-src 'self'; frame-ancestors 'none'; object-src 'none'",
+      "reproduction_steps": [
+        "Tested GET /api/secure/profile"
+      ],
+      "impact": "Header active and enforcing browser policy.",
+      "remediation": "Maintain header configuration."
+    },
+    {
+      "id": "HEADER-PRESENT-X_FRAME_OPTIONS",
+      "category": "Security Headers",
+      "severity": "Informational",
+      "status": "Secure",
+      "title": "Header Present: X-Frame-Options",
+      "endpoint": "/api/secure/profile",
+      "method": "GET",
+      "evidence": "X-Frame-Options: DENY",
+      "reproduction_steps": [
+        "Tested GET /api/secure/profile"
+      ],
+      "impact": "Header active and enforcing browser policy.",
+      "remediation": "Maintain header configuration."
+    },
+    {
+      "id": "HEADER-PRESENT-X_CONTENT_TYPE_OPTIONS",
+      "category": "Security Headers",
+      "severity": "Informational",
+      "status": "Secure",
+      "title": "Header Present: X-Content-Type-Options",
+      "endpoint": "/api/secure/profile",
+      "method": "GET",
+      "evidence": "X-Content-Type-Options: nosniff",
+      "reproduction_steps": [
+        "Tested GET /api/secure/profile"
+      ],
+      "impact": "Header active and enforcing browser policy.",
+      "remediation": "Maintain header configuration."
+    },
+    {
+      "id": "HEADER-PRESENT-REFERRER_POLICY",
+      "category": "Security Headers",
+      "severity": "Informational",
+      "status": "Secure",
+      "title": "Header Present: Referrer-Policy",
+      "endpoint": "/api/secure/profile",
+      "method": "GET",
+      "evidence": "Referrer-Policy: strict-origin-when-cross-origin",
+      "reproduction_steps": [
+        "Tested GET /api/secure/profile"
+      ],
+      "impact": "Header active and enforcing browser policy.",
+      "remediation": "Maintain header configuration."
+    },
+    {
+      "id": "IDOR-UNAUTH-READ",
+      "category": "Authorization (IDOR)",
+      "severity": "High",
+      "status": "Confirmed",
+      "title": "Insecure Direct Object Reference (IDOR) on User Profile API",
+      "endpoint": "/api/vulnerable/idor/user/99",
+      "method": "GET",
+      "evidence": "Record retrieved without session ownership check: {\"id\":99,\"username\":\"admin\",\"email\":\"admin.demo@example.test\",\"role\":\"admin\",\"balance\":10000,\"password_hash\":\"$2b$10$EixZaYVK1fsbw1ZfbX3OXePaWxn96p36WQoeG6Lruj3vjPGga31lW\"}",
+      "reproduction_steps": [
+        "Send GET to http://localhost:3000/api/vulnerable/idor/user/99",
+        "Observe full user object returned despite lack of administrator privileges"
+      ],
+      "impact": "High. Allows any caller to enumerate and read sensitive profile records belonging to other users.",
+      "remediation": "Verify that req.session.userId === requestedUserId or check ownership in the database query.",
+      "owasp_ref": "OWASP A01:2021 - Broken Access Control",
+      "cwe_ref": "CWE-639: Authorization Bypass Through User-Controlled Key"
+    },
+    {
+      "id": "IDOR-SECURE-ENFORCED",
+      "category": "Authorization (IDOR)",
+      "severity": "Informational",
+      "status": "Secure",
+      "title": "Object Ownership Verified on User Profile Endpoint",
+      "endpoint": "/api/secure/idor/user/99",
+      "method": "GET",
+      "evidence": "Request for unauthorized ID was rejected with HTTP 403 Forbidden",
+      "reproduction_steps": [
+        "Requested ID 99 on secure endpoint"
+      ],
+      "impact": "Unauthorized access prevented.",
+      "remediation": "Maintain object-level ownership checks."
+    }
+  ]
+}

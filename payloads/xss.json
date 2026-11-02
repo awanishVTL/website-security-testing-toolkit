@@ -1,0 +1,52 @@
+[
+  {
+    "id": "XSS-REFLECT-001",
+    "category": "Cross-Site Scripting (XSS)",
+    "payload": "<test-xss-sentinel>xss_probe_01</test-xss-sentinel>",
+    "purpose": "Verify unencoded HTML reflection in server HTTP responses without executing JavaScript.",
+    "expected_secure_behavior": "Server HTML-encodes output (&lt;test-xss-sentinel&gt;) or sets Content-Type to application/json.",
+    "expected_vulnerable_behavior": "Server reflects raw, unescaped tags directly into HTML body.",
+    "risk_level": "High",
+    "remediation": "Apply contextual HTML entity encoding using a safe templating engine or escape utility before embedding untrusted data."
+  },
+  {
+    "id": "XSS-REFLECT-002",
+    "category": "Cross-Site Scripting (XSS)",
+    "payload": "\"><img src=x onerror=console.log('xss_probe_02')>",
+    "purpose": "Test HTML attribute breakout and JavaScript event handler execution probe.",
+    "expected_secure_behavior": "Quotes and brackets are HTML attribute encoded (&quot;&gt;) preventing tag breakout.",
+    "expected_vulnerable_behavior": "Raw quotes break out of HTML input value and render active onerror event handler.",
+    "risk_level": "High",
+    "remediation": "Use context-aware attribute escaping. In React/modern UI, bind values via JSX properties rather than string interpolation."
+  },
+  {
+    "id": "XSS-DOM-001",
+    "category": "Cross-Site Scripting (XSS)",
+    "payload": "#<span id=dom_test_probe>dom_probe_03</span>",
+    "purpose": "Detect unsafe client-side DOM sinks (such as element.innerHTML or document.write) reading from location.hash.",
+    "expected_secure_behavior": "Client script uses textContent or DOMPurify before inserting dynamic hash values.",
+    "expected_vulnerable_behavior": "Dynamic fragment is directly assigned to innerHTML or dangerouslySetInnerHTML.",
+    "risk_level": "Medium",
+    "remediation": "Replace innerHTML with textContent or sanitize dynamic HTML using DOMPurify."
+  },
+  {
+    "id": "XSS-STORED-001",
+    "category": "Cross-Site Scripting (XSS)",
+    "payload": "<b id=\"stored-probe-04\">audit_marker</b>",
+    "purpose": "Detect unescaped stored content rendering in subsequent GET requests.",
+    "expected_secure_behavior": "Stored markup is encoded on rendering or rejected during schema validation.",
+    "expected_vulnerable_behavior": "Markup is persisted and echoed unmodified to multiple viewers.",
+    "risk_level": "High",
+    "remediation": "Validate input on intake and encode contextually upon presentation."
+  },
+  {
+    "id": "XSS-JS-CONTEXT-001",
+    "category": "Cross-Site Scripting (XSS)",
+    "payload": "';console.log('js_context_probe');//",
+    "purpose": "Test injection into inline JavaScript script blocks.",
+    "expected_secure_behavior": "Variables are serialized using secure JSON serializer (serialize-javascript) or isolated in data-* attributes.",
+    "expected_vulnerable_behavior": "Quotes break out of JavaScript variable assignment and execute arbitrary statements.",
+    "risk_level": "High",
+    "remediation": "Never interpolate raw strings into <script> blocks. Use JSON.parse(element.dataset.props) or secure serialization."
+  }
+]

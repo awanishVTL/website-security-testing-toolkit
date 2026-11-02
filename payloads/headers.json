@@ -1,0 +1,52 @@
+[
+  {
+    "id": "HEADER-MISSING-CSP-001",
+    "category": "Security Headers",
+    "payload": "GET /",
+    "purpose": "Verify presence of Content-Security-Policy header to mitigate XSS and data injection attacks.",
+    "expected_secure_behavior": "Server responds with robust CSP (e.g., default-src 'self'; script-src 'self').",
+    "expected_vulnerable_behavior": "Content-Security-Policy header is absent.",
+    "risk_level": "Medium",
+    "remediation": "Deploy helmet() middleware or configure Content-Security-Policy header with appropriate source directives."
+  },
+  {
+    "id": "HEADER-MISSING-HSTS-001",
+    "category": "Security Headers",
+    "payload": "GET /",
+    "purpose": "Verify Strict-Transport-Security (HSTS) header enforcement over HTTPS.",
+    "expected_secure_behavior": "Server responds with Strict-Transport-Security: max-age=31536000; includeSubDomains.",
+    "expected_vulnerable_behavior": "Strict-Transport-Security header is missing, allowing protocol downgrade (SSL stripping).",
+    "risk_level": "Medium",
+    "remediation": "Add Strict-Transport-Security: max-age=31536000; includeSubDomains via helmet.hsts()."
+  },
+  {
+    "id": "HEADER-MISSING-XFO-001",
+    "category": "Security Headers",
+    "payload": "GET /",
+    "purpose": "Verify anti-clickjacking protection via X-Frame-Options or CSP frame-ancestors.",
+    "expected_secure_behavior": "Server sends X-Frame-Options: DENY or SAMEORIGIN, or CSP frame-ancestors 'self'.",
+    "expected_vulnerable_behavior": "No framing restrictions present; site can be rendered inside arbitrary third-party <iframe>.",
+    "risk_level": "Medium",
+    "remediation": "Set X-Frame-Options: DENY or frame-ancestors 'none' in Content-Security-Policy."
+  },
+  {
+    "id": "HEADER-MISSING-XCTO-001",
+    "category": "Security Headers",
+    "payload": "GET /",
+    "purpose": "Verify MIME-type sniffing protection.",
+    "expected_secure_behavior": "Server sends X-Content-Type-Options: nosniff.",
+    "expected_vulnerable_behavior": "Header is missing; browser may interpret non-executable MIME types as HTML or JavaScript.",
+    "risk_level": "Low",
+    "remediation": "Configure X-Content-Type-Options: nosniff header on all responses."
+  },
+  {
+    "id": "HEADER-INFO-LEAK-001",
+    "category": "Security Headers",
+    "payload": "GET /",
+    "purpose": "Check for technology fingerprinting headers (X-Powered-By, Server detailed versions).",
+    "expected_secure_behavior": "X-Powered-By is suppressed and Server header exposes no version details.",
+    "expected_vulnerable_behavior": "Server exposes 'X-Powered-By: Express' or detailed framework version numbers.",
+    "risk_level": "Low",
+    "remediation": "Disable fingerprinting: app.disable('x-powered-by') and helmet.hidePoweredBy()."
+  }
+]

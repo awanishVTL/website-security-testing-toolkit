@@ -1,0 +1,52 @@
+[
+  {
+    "id": "SQLI-ERR-001",
+    "category": "SQL Injection",
+    "payload": "'",
+    "purpose": "Detect unescaped SQL quotation marks causing syntax error leakage in query responses.",
+    "expected_secure_behavior": "Input treated strictly as a literal string value; database query executes cleanly or rejects invalid types without syntax exception.",
+    "expected_vulnerable_behavior": "Application returns HTTP 500 with SQL syntax error messages (e.g. 'You have an error in your SQL syntax', 'ORA-00933', 'Unclosed quotation mark').",
+    "risk_level": "Critical",
+    "remediation": "Use parameterized queries (prepared statements) with placeholder parameters instead of string concatenation."
+  },
+  {
+    "id": "SQLI-AUTH-001",
+    "category": "SQL Injection",
+    "payload": "admin' OR '1'='1' -- ",
+    "purpose": "Test vulnerable SQL authentication queries where concatenated strings bypass password checks.",
+    "expected_secure_behavior": "Authentication fails; query searches for a user literally named \"admin' OR '1'='1' -- \".",
+    "expected_vulnerable_behavior": "Authentication succeeds or logs in as the first user in the database table without valid credentials.",
+    "risk_level": "Critical",
+    "remediation": "Implement parameterized statements: db.query('SELECT * FROM users WHERE username = ?', [username]) and verify hashed passwords using bcrypt/argon2."
+  },
+  {
+    "id": "SQLI-BOOL-001",
+    "category": "SQL Injection",
+    "payload": "1' AND '1'='1",
+    "purpose": "Test boolean condition evaluation in search or filter parameters (True condition).",
+    "expected_secure_behavior": "No records matched or input rejected by strict integer/UUID validator.",
+    "expected_vulnerable_behavior": "Response returns valid records as the injected condition evaluates to true.",
+    "risk_level": "High",
+    "remediation": "Validate input schema (e.g. integer type casting) and use parameterized ORM/database queries."
+  },
+  {
+    "id": "SQLI-BOOL-002",
+    "category": "SQL Injection",
+    "payload": "1' AND '1'='2",
+    "purpose": "Test boolean condition evaluation in search or filter parameters (False condition).",
+    "expected_secure_behavior": "System behaves identically to invalid input or returns empty set via parameter binding.",
+    "expected_vulnerable_behavior": "Response yields 0 records or different page size compared to the 1=1 condition, confirming dynamic SQL structure control.",
+    "risk_level": "High",
+    "remediation": "Do not interpolate user input into WHERE clauses. Bind parameters safely."
+  },
+  {
+    "id": "SQLI-ORDERBY-001",
+    "category": "SQL Injection",
+    "payload": "(CASE WHEN (1=1) THEN id ELSE name END)",
+    "purpose": "Detect dynamic SQL concatenation in ORDER BY or GROUP BY clauses where parameters are often unsupported.",
+    "expected_secure_behavior": "Application rejects sort parameter not included in an explicit allowlist of sortable columns.",
+    "expected_vulnerable_behavior": "Database query re-orders output based on arbitrary injected expressions.",
+    "risk_level": "High",
+    "remediation": "Use an explicit column allowlist: const ALLOWED_SORT = ['id', 'created_at', 'name']; if (!ALLOWED_SORT.includes(sort)) throw new Error('Invalid sort');"
+  }
+]

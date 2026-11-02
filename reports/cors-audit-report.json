@@ -1,0 +1,90 @@
+{
+  "target_application": "CORS Misconfiguration Audit",
+  "target_url": "http://localhost:3000",
+  "assessment_date": "2026-11-02T07:18:41.242Z",
+  "tested_endpoints": [
+    "/api/vulnerable/profile",
+    "/api/secure/profile"
+  ],
+  "summary": {
+    "total_findings": 4,
+    "confirmed": 2,
+    "potential": 0,
+    "secure": 2,
+    "by_severity": {
+      "Critical": 0,
+      "High": 2,
+      "Medium": 0,
+      "Low": 0,
+      "Informational": 2
+    }
+  },
+  "findings": [
+    {
+      "id": "CORS-VULN-ARBITRARY_ORIGIN",
+      "category": "CORS Misconfiguration",
+      "severity": "High",
+      "status": "Confirmed",
+      "title": "Arbitrary Origin Reflected with Credentials Allowed on /api/vulnerable/profile",
+      "endpoint": "/api/vulnerable/profile",
+      "method": "GET",
+      "evidence": "Origin: https://unauthorized-attacker.test reflected in Access-Control-Allow-Origin: https://unauthorized-attacker.test with Access-Control-Allow-Credentials: true",
+      "reproduction_steps": [
+        "Send GET to http://localhost:3000/api/vulnerable/profile with header 'Origin: https://unauthorized-attacker.test'",
+        "Verify response contains 'Access-Control-Allow-Origin: https://unauthorized-attacker.test' and 'Access-Control-Allow-Credentials: true'"
+      ],
+      "impact": "High. Untrusted external web origins can read sensitive user data and bypass browser SOP.",
+      "remediation": "Replace dynamic origin reflection with a static allowlist of trusted origins.",
+      "owasp_ref": "OWASP A05:2021 - Security Misconfiguration",
+      "cwe_ref": "CWE-346: Origin Validation Error"
+    },
+    {
+      "id": "CORS-VULN-NULL_ORIGIN",
+      "category": "CORS Misconfiguration",
+      "severity": "High",
+      "status": "Confirmed",
+      "title": "Arbitrary Origin Reflected with Credentials Allowed on /api/vulnerable/profile",
+      "endpoint": "/api/vulnerable/profile",
+      "method": "GET",
+      "evidence": "Origin: null reflected in Access-Control-Allow-Origin: null with Access-Control-Allow-Credentials: true",
+      "reproduction_steps": [
+        "Send GET to http://localhost:3000/api/vulnerable/profile with header 'Origin: null'",
+        "Verify response contains 'Access-Control-Allow-Origin: null' and 'Access-Control-Allow-Credentials: true'"
+      ],
+      "impact": "High. Untrusted external web origins can read sensitive user data and bypass browser SOP.",
+      "remediation": "Replace dynamic origin reflection with a static allowlist of trusted origins.",
+      "owasp_ref": "OWASP A05:2021 - Security Misconfiguration",
+      "cwe_ref": "CWE-346: Origin Validation Error"
+    },
+    {
+      "id": "CORS-SAFE--api-secure-profile-arbitrary_origin",
+      "category": "CORS Misconfiguration",
+      "severity": "Informational",
+      "status": "Secure",
+      "title": "Strict CORS Origin Handling on /api/secure/profile",
+      "endpoint": "/api/secure/profile",
+      "method": "GET",
+      "evidence": "Untrusted origin was not reflected. ACAO: None",
+      "reproduction_steps": [
+        "Tested GET with Origin: https://unauthorized-attacker.test"
+      ],
+      "impact": "Unauthorized cross-origin reading prevented.",
+      "remediation": "Maintain origin allowlisting."
+    },
+    {
+      "id": "CORS-SAFE--api-secure-profile-null_origin",
+      "category": "CORS Misconfiguration",
+      "severity": "Informational",
+      "status": "Secure",
+      "title": "Strict CORS Origin Handling on /api/secure/profile",
+      "endpoint": "/api/secure/profile",
+      "method": "GET",
+      "evidence": "Untrusted origin was not reflected. ACAO: None",
+      "reproduction_steps": [
+        "Tested GET with Origin: null"
+      ],
+      "impact": "Unauthorized cross-origin reading prevented.",
+      "remediation": "Maintain origin allowlisting."
+    }
+  ]
+}

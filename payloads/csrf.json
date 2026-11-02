@@ -1,0 +1,42 @@
+[
+  {
+    "id": "CSRF-TOKEN-OMISSION-001",
+    "category": "Cross-Site Request Forgery (CSRF)",
+    "payload": "{\"account_id\": \"test_recipient\", \"amount\": 10}",
+    "purpose": "Submit state-changing POST request without X-CSRF-Token header or anti-CSRF token body parameter.",
+    "expected_secure_behavior": "Server returns HTTP 403 Forbidden with message 'Invalid or missing CSRF token'.",
+    "expected_vulnerable_behavior": "Server executes state-changing action based purely on session cookies.",
+    "risk_level": "High",
+    "remediation": "Implement Synchronizer Token Pattern (csrf-csrf or csurf middleware) or double-submit cookie validation."
+  },
+  {
+    "id": "CSRF-ORIGIN-001",
+    "category": "Cross-Site Request Forgery (CSRF)",
+    "payload": "Header: Origin: https://unauthorized-thirdparty.test",
+    "purpose": "Verify if the server validates the HTTP Origin and Referer headers on mutating POST/PUT requests.",
+    "expected_secure_behavior": "Server compares Origin against allowed hosts list and rejects mismatched requests.",
+    "expected_vulnerable_behavior": "Server blindly processes state-changing request regardless of foreign origin.",
+    "risk_level": "Medium",
+    "remediation": "Validate Origin and Referer request headers for all state-changing endpoints."
+  },
+  {
+    "id": "CSRF-SAMESITE-001",
+    "category": "Cross-Site Request Forgery (CSRF)",
+    "payload": "Cookie: session_id=...",
+    "purpose": "Inspect session cookie flags for SameSite attribute (Strict or Lax) and HttpOnly.",
+    "expected_secure_behavior": "Cookies set with SameSite=Lax or SameSite=Strict and Secure and HttpOnly.",
+    "expected_vulnerable_behavior": "Cookies set without SameSite or SameSite=None without Secure flag, enabling cross-site inclusion.",
+    "risk_level": "Medium",
+    "remediation": "Configure session cookies with SameSite=Lax (or Strict), HttpOnly, and Secure flags in express-session."
+  },
+  {
+    "id": "CSRF-GET-METHOD-001",
+    "category": "Cross-Site Request Forgery (CSRF)",
+    "payload": "GET /api/transfer?recipient=audit&amount=5",
+    "purpose": "Test if sensitive state changes are incorrectly allowed via safe HTTP GET requests.",
+    "expected_secure_behavior": "Server rejects GET requests on mutating operations with HTTP 405 Method Not Allowed.",
+    "expected_vulnerable_behavior": "Server processes financial/privilege mutations via GET, vulnerable to simple <img src=...> inclusion.",
+    "risk_level": "High",
+    "remediation": "Strictly enforce HTTP POST/PUT/DELETE for mutating operations and disallow GET."
+  }
+]

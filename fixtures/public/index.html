@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Website Security Testing Toolkit - Interactive Testbed</title>
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+  <header>
+    <div class="container">
+      <div class="logo">
+        <span class="shield-icon">&#128737;</span>
+        <h1>Website Security Testing Toolkit</h1>
+      </div>
+      <p class="subtitle">Authorized Local Security Demonstration Testbed & Exploit Remediation Lab</p>
+    </div>
+  </header>
+
+  <main class="container">
+    <div class="status-banner">
+      <div class="badge secure">Authorized Scope</div>
+      <span>Target: <code>http://localhost:3000</code> &bull; Seed Dummy Data &bull; Non-Destructive Probes Only</span>
+    </div>
+
+    <!-- Section 1: XSS -->
+    <section class="card">
+      <h2>1. Cross-Site Scripting (XSS)</h2>
+      <p class="desc">Compare raw unencoded HTML reflection vs safe contextual output encoding.</p>
+      
+      <div class="form-row">
+        <label for="xssInput">Search Query / Payload:</label>
+        <input type="text" id="xssInput" value="<b style='color:red;'>Safe-Test-Probe</b>">
+      </div>
+      
+      <div class="btn-group">
+        <button class="btn btn-vuln" onclick="testXss('vulnerable')">Test Vulnerable (/api/vulnerable/search)</button>
+        <button class="btn btn-sec" onclick="testXss('secure')">Test Secure (/api/secure/search)</button>
+      </div>
+      
+      <div class="preview-box">
+        <h4>Rendered Output:</h4>
+        <iframe id="xssFrame" sandbox="allow-same-origin" class="preview-frame"></iframe>
+      </div>
+    </section>
+
+    <!-- Section 2: SQL Injection -->
+    <section class="card">
+      <h2>2. SQL Injection (SQLi)</h2>
+      <p class="desc">Test parameterized query verification vs raw query string concatenation.</p>
+      
+      <div class="form-row">
+        <label for="sqliInput">Search Query:</label>
+        <input type="text" id="sqliInput" value="alice' OR '1'='1' -- ">
+      </div>
+      
+      <div class="btn-group">
+        <button class="btn btn-vuln" onclick="testSqli('vulnerable')">Test Concatenated (/api/vulnerable/users)</button>
+        <button class="btn btn-sec" onclick="testSqli('secure')">Test Parameterized (/api/secure/users)</button>
+      </div>
+
+      <div class="preview-box">
+        <h4>API Response:</h4>
+        <pre id="sqliOutput">// Click a test button above to view response...</pre>
+      </div>
+    </section>
+
+    <!-- Section 3: CSRF -->
+    <section class="card">
+      <h2>3. Cross-Site Request Forgery (CSRF)</h2>
+      <p class="desc">Validate anti-CSRF token protection and SameSite cookie verification.</p>
+
+      <div class="form-row">
+        <label for="csrfRecipient">Recipient:</label>
+        <input type="text" id="csrfRecipient" value="attacker-account">
+        <label for="csrfAmount" style="margin-left: 10px;">Amount ($):</label>
+        <input type="number" id="csrfAmount" value="50" style="max-width: 100px;">
+      </div>
+
+      <div class="btn-group">
+        <button class="btn btn-vuln" onclick="testCsrf('vulnerable')">Simulate Cross-Site Transfer (/api/vulnerable/transfer)</button>
+        <button class="btn btn-sec" onclick="testCsrf('secure')">Submit with CSRF Token (/api/secure/transfer)</button>
+      </div>
+
+      <div class="preview-box">
+        <h4>CSRF Response:</h4>
+        <pre id="csrfOutput">// Click a test button above to view response...</pre>
+      </div>
+    </section>
+
+    <!-- Section 4: CORS & Headers -->
+    <section class="card">
+      <h2>4. CORS & Security Headers</h2>
+      <p class="desc">Inspect HTTP response headers for missing CSP, HSTS, X-Frame-Options, and permissive CORS origins.</p>
+
+      <div class="btn-group">
+        <button class="btn btn-vuln" onclick="testCors('vulnerable')">Inspect Vulnerable Headers (/api/vulnerable/profile)</button>
+        <button class="btn btn-sec" onclick="testCors('secure')">Inspect Hardened Headers (/api/secure/profile)</button>
+      </div>
+
+      <div class="preview-box">
+        <h4>Headers & CORS Details:</h4>
+        <pre id="corsOutput">// Click a button to inspect headers...</pre>
+      </div>
+    </section>
+
+    <!-- Section 5: IDOR -->
+    <section class="card">
+      <h2>5. Insecure Direct Object Reference (IDOR)</h2>
+      <p class="desc">Verify user resource authorization: User 1 (Alice) attempting to view Admin (User 99).</p>
+
+      <div class="form-row">
+        <label for="idorId">Requested User ID:</label>
+        <input type="number" id="idorId" value="99" style="max-width: 100px;">
+        <span class="note">(Simulated Caller Session: User ID 1)</span>
+      </div>
+
+      <div class="btn-group">
+        <button class="btn btn-vuln" onclick="testIdor('vulnerable')">Test Without AuthZ (/api/vulnerable/idor/user/99)</button>
+        <button class="btn btn-sec" onclick="testIdor('secure')">Test With Ownership Check (/api/secure/idor/user/99)</button>
+      </div>
+
+      <div class="preview-box">
+        <h4>Access Control Response:</h4>
+        <pre id="idorOutput">// Click a button to test object ownership...</pre>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="container">
+      <p>Website Security Testing Toolkit &bull; Authorized Security Testing Lab &bull; Developed with Node.js & Express</p>
+    </div>
+  </footer>
+
+  <script src="/app.js"></script>
+</body>
+</html>

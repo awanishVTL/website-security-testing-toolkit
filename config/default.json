@@ -1,0 +1,33 @@
+{
+  "target_url": "http://localhost:3000",
+  "request_timeout_ms": 5000,
+  "max_concurrency": 5,
+  "user_agent": "WebSecTestToolkit/1.0 (+AuthorizedSecurityAssessment; Non-Destructive)",
+  "endpoints": {
+    "xss": [
+      "/api/vulnerable/search",
+      "/api/vulnerable/comments",
+      "/api/secure/search",
+      "/api/secure/comments"
+    ],
+    "sqli": [
+      "/api/vulnerable/users",
+      "/api/vulnerable/login",
+      "/api/secure/users",
+      "/api/secure/login"
+    ],
+    "csrf": [
+      "/api/vulnerable/transfer",
+      "/api/secure/transfer"
+    ],
+    "cors": [
+      "/api/vulnerable/profile",
+      "/api/secure/profile"
+    ],
+    "headers": [
+      "/",
+      "/api/vulnerable/profile",
+      "/api/secure/profile"
+    ]
+  }
+}
